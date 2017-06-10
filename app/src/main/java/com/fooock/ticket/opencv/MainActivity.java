@@ -79,8 +79,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if (OpenCVLoader.initDebug()) {
-            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        if (BuildConfig.DEBUG) {
+            if (OpenCVLoader.initDebug()) {
+                mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+            }
         } else {
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_2_0, this, mLoaderCallback);
         }
@@ -129,6 +131,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onLongClick(View v) {
         Log.d(TAG, "Take a photo!");
-        return false;
+        return true;
     }
 }
