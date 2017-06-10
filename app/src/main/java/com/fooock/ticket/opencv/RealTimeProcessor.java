@@ -1,15 +1,21 @@
 package com.fooock.ticket.opencv;
 
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
  */
 final class RealTimeProcessor {
+
+    private static final int AREA_THRESHOLD = 700;
 
     private final Scalar mScalarGreen = new Scalar(0, 255, 0);
 
@@ -26,20 +32,37 @@ final class RealTimeProcessor {
         final Mat cannedMat = new Mat();
         Imgproc.Canny(grayMat, cannedMat, 75, 200);
 
-        final Mat lines = new Mat();
-        Imgproc.HoughLinesP(cannedMat, lines, 1, Math.PI / 180, 50);
+        final GetContours getContours = new GetContours(cannedMat);
+        final List<MatOfPoint> contours = getContours.contours();
+        final MatOfPoint2f approx = new MatOfPoint2f();
 
-        for (int i = 0; i < lines.rows(); i++) {
-            final double[] values = lines.get(i, 0);
-            final Point pointStart = new Point(values[0], values[1]);
-            final Point pointEnd = new Point(values[2], values[3]);
+        Mat target = null;
+        for (MatOfPoint contour : contours) {
+            final MatOfPoint2f contour2f = new MatOfPoint2f(contour.toArray());
 
-            // paint lines
-            Imgproc.line(original, pointStart, pointEnd, mScalarGreen, 3);
+            // Here we approximate the number of contour points
+            final double approxDistance = Imgproc.arcLength(contour2f, true);
+            Imgproc.approxPolyDP(contour2f, approx, approxDistance * 0.02, true);
+
+            final MatOfPoint points = new MatOfPoint(approx.toArray());
+            final int pointsInt = (int) points.total();
+            // Calculate the rectangle area to discard small contours
+            final double area = Imgproc.contourArea(points);
+            // Now if the approximated contour has four points, we assume that we have
+            // found the document
+            if (pointsInt == 4 && area > AREA_THRESHOLD) {
+                target = points;
+                break;
+            }
+        }
+
+        if (target != null) {
+            Imgproc.drawContours(original, Collections.singletonList(new MatOfPoint(target)),
+                    -1, mScalarGreen, 3);
+            target.release();
         }
 
         // release not needed mat
-        lines.release();
         cannedMat.release();
         grayMat.release();
     }

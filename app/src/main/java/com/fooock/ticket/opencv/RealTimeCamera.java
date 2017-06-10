@@ -40,8 +40,8 @@ public class RealTimeCamera extends JavaCameraView implements Camera.PictureCall
 
     @Override
     public void onPictureTaken(byte[] data, Camera camera) {
-        mCamera.startPreview();
         mCamera.setPreviewCallback(this);
+        mCamera.startPreview();
 
         if (mPictureResult == null) {
             Log.w(TAG, "Can't send the result of take photo to null listener");
