@@ -34,6 +34,10 @@ final class RealTimeProcessor {
 
         final GetContours getContours = new GetContours(cannedMat);
         final List<MatOfPoint> contours = getContours.contours();
+        // Do nothing if contours is empty
+        if (contours.isEmpty()) {
+            return;
+        }
         final MatOfPoint2f approx = new MatOfPoint2f();
 
         Mat target = null;
