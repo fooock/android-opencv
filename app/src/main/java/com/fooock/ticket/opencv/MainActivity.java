@@ -11,7 +11,6 @@ import android.view.View;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
@@ -19,15 +18,17 @@ import org.opencv.core.Mat;
 /**
  *
  */
-public class MainActivity extends AppCompatActivity
-        implements CameraBridgeViewBase.CvCameraViewListener2, View.OnLongClickListener {
+public class MainActivity extends AppCompatActivity implements
+        CameraBridgeViewBase.CvCameraViewListener2, View.OnLongClickListener,
+        RealTimeCamera.PictureResult {
+
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final int CAMERA_REQUEST_CODE = 981;
 
     private static final String[] CAMERA_PERMISSION = {Manifest.permission.CAMERA};
 
-    private JavaCameraView mJavaCameraView;
+    private RealTimeCamera mRealTimeCameraView;
     private CheckPermission mCheckPermission;
 
     private final CheckVersion mCheckVersion = new CheckVersion();
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity
                         // check if the device has camera permissions
                         checkCameraPermission();
                     } else {
-                        mJavaCameraView.enableView();
+                        mRealTimeCameraView.enableView();
                     }
                     break;
                 default:
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity
             requestPermissions(CAMERA_PERMISSION, CAMERA_REQUEST_CODE);
         } else {
             // its safe to enable camera
-            mJavaCameraView.enableView();
+            mRealTimeCameraView.enableView();
         }
     }
 
@@ -71,9 +72,10 @@ public class MainActivity extends AppCompatActivity
 
         mCheckPermission = new CheckPermission(this);
 
-        mJavaCameraView = (JavaCameraView) findViewById(R.id.open_cv_camera);
-        mJavaCameraView.setCvCameraViewListener(this);
-        mJavaCameraView.setOnLongClickListener(this);
+        mRealTimeCameraView = (RealTimeCamera) findViewById(R.id.open_cv_camera);
+        mRealTimeCameraView.setCvCameraViewListener(this);
+        mRealTimeCameraView.setPictureResult(this);
+        mRealTimeCameraView.setOnLongClickListener(this);
     }
 
     @Override
@@ -91,8 +93,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        if (mJavaCameraView != null) {
-            mJavaCameraView.disableView();
+        if (mRealTimeCameraView != null) {
+            mRealTimeCameraView.disableView();
         }
     }
 
@@ -105,7 +107,7 @@ public class MainActivity extends AppCompatActivity
         for (int i = 0; i < permissions.length; i++) {
             if (permissions[i].equals(Manifest.permission.CAMERA)
                     && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                mJavaCameraView.enableView();
+                mRealTimeCameraView.enableView();
                 break;
             }
         }
@@ -131,6 +133,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onLongClick(View v) {
         Log.d(TAG, "Take a photo!");
+        mRealTimeCameraView.takePhoto();
         return true;
+    }
+
+    @Override
+    public void onPictureTaken(byte[] picture) {
+        Log.d(TAG, "Picture taken!");
     }
 }

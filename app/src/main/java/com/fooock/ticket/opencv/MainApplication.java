@@ -7,11 +7,8 @@ import android.app.Application;
  */
 public class MainApplication extends Application {
 
-    public Executor executor() {
-        return DefaultExecutor.getInstance();
-    }
-
-    public MainThread mainThread() {
-        return DefaultMainThread.getInstance();
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
 }

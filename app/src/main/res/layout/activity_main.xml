@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context="com.fooock.ticket.opencv.MainActivity">
 
-    <org.opencv.android.JavaCameraView
+    <com.fooock.ticket.opencv.RealTimeCamera
         android:id="@+id/open_cv_camera"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
