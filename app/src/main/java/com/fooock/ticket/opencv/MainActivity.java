@@ -1,7 +1,9 @@
 package com.fooock.ticket.opencv;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -140,5 +142,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onPictureTaken(byte[] picture) {
         Log.d(TAG, "Picture taken!");
+        // Send the image to be precessed
+        final Intent imageBytes = new Intent(this, ProcessedImageActivity.class);
+        imageBytes.putExtra("image", picture);
+        // Image size data
+        final Camera.Size size = mRealTimeCameraView.size();
+        imageBytes.putExtra("width", size.width);
+        imageBytes.putExtra("height", size.height);
+        // Send to precess
+        startActivity(imageBytes);
     }
 }

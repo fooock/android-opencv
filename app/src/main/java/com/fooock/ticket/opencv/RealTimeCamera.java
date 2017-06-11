@@ -51,6 +51,13 @@ public class RealTimeCamera extends JavaCameraView implements Camera.PictureCall
     }
 
     /**
+     * @return Current picture size
+     */
+    Camera.Size size() {
+        return mCamera.getParameters().getPictureSize();
+    }
+
+    /**
      * Callback to send the result of the take photo action
      */
     interface PictureResult {
